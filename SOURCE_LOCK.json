@@ -37,8 +37,8 @@
   "crown_labels/science.py": "1212a2ff9a5b4a7552a12018e85309d86222b1043be87f60368519dcfda36694",
   "crown_labels/surface.py": "fd74272e48fb439400e3ceb1882ebbbbd7412d15e09c566abb312bd6884af0df",
   "crown_labels/worker.py": "cd6e44e22141697fa5f46f38c12ef8cb1999a38bfc93b09f7be61665ffd8d1ff",
-  "docs/ALGORITHM.md": "59e944471626a9fffb231b88b25f3d94810d2584dfbaf147a7b7c9f314fa233f",
-  "examples/algorithm_walkthrough.py": "e60886a217ca6f06445bc3c42f0993c14c3408d09a6640e7219a95d619c7243a",
+  "docs/ALGORITHM.md": "9ec474cd7e64d279092f0f57c0cfc15f0f807d5afb67079fec21ae3484aef90a",
+  "examples/algorithm_walkthrough.py": "f074b7ae5ae4dde13ce6167138836c97dcb1e960945e30da00e3e39139dfd1e2",
   "examples/plan.example.json": "93afc22fe88ef6f8f589da6d4b1388881fd0b7ff443d38f78f43f473afbf94fa",
   "pyproject.toml": "cb7ff762027cb74895e51535e4f64ca9e2f549136ae33dd4e69bde1b14417e0b",
   "tests/test_dense.py": "011a611722ba8f14d63babcb15853fc76e9fd09b5dd6ec7837bf24a4ea23d991"
