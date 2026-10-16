@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "crown-labels-cost512"
+version = "1.2.512"
+description = "LiDAR hierarchical Gaussian crown labels and dense RGB training crops"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26", "scipy>=1.11", "rasterio>=1.3", "affine>=2.4", "laspy[lazrs]>=2.5", "Pillow>=10", "opencv-python-headless>=4.8"]
+[tool.setuptools.packages.find]
+include = ["crown_labels*"]
+[tool.setuptools.package-data]
+"crown_labels.core" = ["*.txt"]

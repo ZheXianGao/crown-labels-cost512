@@ -1,0 +1,48 @@
+{
+  "selected": [
+    {
+      "active_instance_cost": 512,
+      "candidate_admission_min_vertical_ratio": 0.7,
+      "ground": "/data/ground.npz",
+      "ground_sha256": "REPLACE_WITH_SHA256",
+      "window": {
+        "scene": "example_001",
+        "uav": 1,
+        "spatial_group": "example",
+        "dom": "/data/dom.tif",
+        "las_sources": [
+          {
+            "path": "/data/points.laz"
+          }
+        ],
+        "crs": "EPSG:32650",
+        "size": 1344,
+        "core_offset": 160,
+        "origin_xy": [
+          500000,
+          4800000
+        ],
+        "transform": [
+          0.1,
+          0,
+          500000,
+          0,
+          -0.1,
+          4800000
+        ],
+        "bounds": [
+          500000,
+          4799865.6,
+          500134.4,
+          4800000
+        ],
+        "core_bounds": [
+          500016,
+          4799881.6,
+          500118.4,
+          4799984
+        ]
+      }
+    }
+  ]
+}

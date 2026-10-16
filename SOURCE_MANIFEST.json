@@ -1,0 +1,186 @@
+{
+  "schema": "cost512_public_source_v1",
+  "instance_activation_cost": 512,
+  "admission_ratio": 0.7,
+  "graph_strength": 1.5,
+  "voxel_m": 0.1,
+  "projection_m": 0.1,
+  "derived_from": "2026-10-15 cost512 production",
+  "files": [
+    {
+      "module": "algorithm",
+      "source_filename": "algorithm.py",
+      "source_sha256": "de7a19eaea06f323e36089bcff974bbba67ee6ebe78efd3ecf9c400c055a7b1b",
+      "functions_and_constants": [
+        "Config",
+        "clean_3d",
+        "make_graph"
+      ],
+      "published_sha256": "082a0c6f4193defb8c9cb26fa5c9a4abd122eb53c8706617bf52b6dd54c8ed06"
+    },
+    {
+      "module": "joint_model",
+      "source_filename": "joint_model.py",
+      "source_sha256": "b88e91f413a2e7b5ec573128124336edbfe9eec10514e6c03da34615ac4d8f5b",
+      "functions_and_constants": [
+        "JointConfig",
+        "gaussian_model"
+      ],
+      "published_sha256": "f6f0d5d9353db2441782cd528aacd3dceff73472e08ee283ad73573e276bf2fb"
+    },
+    {
+      "module": "joint_solver",
+      "source_filename": "joint_solver.py",
+      "source_sha256": "f993cf10d3db75c18afec15b850a2506f19ec6b737e87bd1f7e74a5652fab79c",
+      "functions_and_constants": [
+        "energy",
+        "expansion",
+        "optimize"
+      ],
+      "published_sha256": "f8635660fe35ea1d4969c0aea6dc0d3cfdc6dfaa1fead7caa7dd4822d6d61cf1"
+    },
+    {
+      "module": "hierarchy",
+      "source_filename": "hierarchy.py",
+      "source_sha256": "6a859d6811c906cdc2bfe6fe38cce76053ac974189f9635c98cb695c3a491d47",
+      "functions_and_constants": [
+        "candidate_families",
+        "conditional_problem"
+      ],
+      "published_sha256": "21f3fe32fd7b733fa0e1abac2ec77962bd613a3a7aabedbc555e2136a8bad4e2"
+    },
+    {
+      "module": "staged_helpers",
+      "source_filename": "staged_model.py",
+      "source_sha256": "d25ba1c80d74a7e48f0649664c91e17dc65b2f0e46cd14fa5b3c3fb7d31f0ba2",
+      "functions_and_constants": [
+        "geometry_seed_config"
+      ],
+      "published_sha256": "238bd80e2a16a6745c50839926a972d63ccf6a8a841fcaaddfd1720b607019b0"
+    },
+    {
+      "module": "seed_config",
+      "source_filename": "labels.py",
+      "source_sha256": "eb06dce87606e7400efc1b2a02238eb3872bb3a01ab979775756d9fcc4198250",
+      "functions_and_constants": [
+        "LabelConfig"
+      ],
+      "published_sha256": "58b83f392ce479ae629ab24076f7f7ae892da6c2a9e67e73ef132fe65414ef62"
+    },
+    {
+      "module": "cleanup",
+      "source_filename": "cleanup.py",
+      "source_sha256": "c9dbd00cf7f6a367e7421bfd696b1d68c7945d0d9e63050510daa89b33e6a96b",
+      "functions_and_constants": [
+        "CONNECT",
+        "CleanupConfig",
+        "clean_partition",
+        "component_count",
+        "disk",
+        "perimeter_m"
+      ],
+      "published_sha256": "c6543e305d1e91e55c00aba4cf0f9a3f0d063b57d60b2e869bb1343eac433b2e"
+    },
+    {
+      "module": "compatible",
+      "source_filename": "compatible_families14.py",
+      "source_sha256": "c17bb165d6a5f2b642e4e7f4ba82203f3b37576e60316b5841fec443fed35136",
+      "functions_and_constants": [
+        "validate"
+      ],
+      "published_sha256": "58306b6d9cc58bb80e9fc8836ab4f30ec93d0d0d1fc0d4f72de878dbe71df1b3"
+    },
+    {
+      "module": "family_solver",
+      "source_filename": "local_family_moves14.py",
+      "source_sha256": "ac4860b93cb032c60fc5e90d385262e4ddffb41a09743001c9f19d95679f8f4b",
+      "functions_and_constants": [
+        "delta_energy",
+        "solve"
+      ],
+      "published_sha256": "3eba2264b7162fc1ea64367699aca4337057c47f59426e1018bec3201c43503a"
+    },
+    {
+      "module": "conditional_cache",
+      "source_filename": "exact_conditional_cache14.py",
+      "source_sha256": "204bc06b4b451e9bf8de7f83aff17573354de5b549b5928fcd74880295aae4a6",
+      "functions_and_constants": [
+        "make"
+      ],
+      "published_sha256": "b4646305b33d75ea31a3ef6eb943c3d73111887046a82a8bc6891f6d27c7f895"
+    },
+    {
+      "module": "proposals",
+      "source_filename": "hierarchy17_candidates.py",
+      "source_sha256": "cad447173132e6a7301cd748568446d0689a13f14e9008c676eddb690a810548",
+      "functions_and_constants": [
+        "get_groups"
+      ],
+      "published_sha256": "52d0f42fad2528e9f2a1f5278fd66cec96b1c45175dea4dfa01cac7448087384"
+    },
+    {
+      "module": "background",
+      "source_filename": "local_background_fast14.py",
+      "source_sha256": "294a2ae1e2b7038c26e954a9b3a7be4e214985420b733ec9feac512df0e57005",
+      "functions_and_constants": [
+        "_stripe",
+        "apply",
+        "background"
+      ],
+      "published_sha256": "b96efce49af44cab2432d6c107b0dcd2d594efcd671e83b4d9ca946d14029b8b"
+    },
+    {
+      "module": "unary",
+      "source_filename": "repair_method14.py",
+      "source_sha256": "df859b9b4ea4940990a41e57db73918ea01d17fa19b29d7b363aa0f6457d3e9f",
+      "functions_and_constants": [
+        "initialize",
+        "prepare_unary"
+      ],
+      "published_sha256": "a0fc6a0c389f96809bb51eb7fcd58acf4a3005a6cc3b53680a7638a92de264f8"
+    },
+    {
+      "module": "gap_repair",
+      "source_filename": "grid01_cleanup.py",
+      "source_sha256": "62c2b20da503984b3d99d40f48d8f4b1c7c2543bac700d88d852572a13d8483b",
+      "functions_and_constants": [
+        "repair"
+      ],
+      "published_sha256": "d3677513b3b035db298eadb2e8c23fefaedeffd015b5b1cd5e6aca223441a7af"
+    },
+    {
+      "module": "admission",
+      "source_filename": "candidate_admission.py",
+      "source_sha256": "d815f0245f86560351f0793819ca671a0c16afc5a2e18a11c906f0cdfb146f44",
+      "functions_and_constants": [
+        "admit_peaks"
+      ],
+      "published_sha256": "e71edd3ce6799910beff251b0082b7d797d1ffc972ee29d3789e69f41688d511"
+    },
+    {
+      "module": "bbox_edt",
+      "source_filename": "label_speed_runtime.py",
+      "source_sha256": "25f7e9d7fd2562f5fd783ec84e5102ce612eec46121a7144693ab9ae547df56a",
+      "functions_and_constants": [
+        "_bbox",
+        "sparse_unpadded_edt"
+      ],
+      "published_sha256": "99e2a6abc275e4dbfd9b77fbf8c182f9139fe811b7b6e961cba1047c82ae982b"
+    }
+  ],
+  "packaging_changes": [
+    "Only runtime functions retained; experimental runners removed",
+    "Project-local imports made relative",
+    "Solver label zero called background; numerical cost unchanged",
+    "Dense supervision only; no legacy uncertainty exporter"
+  ],
+  "public_defaults_bound_to_actual_production_call": {
+    "voxel_m": 0.1,
+    "raster_m": 0.1,
+    "fit_radius_m": 2.0,
+    "max_joint_candidates": 300,
+    "max_mahalanobis2": 16.0,
+    "graph_strength": 1.5,
+    "label_cost_voxels": 512.0
+  }
+}

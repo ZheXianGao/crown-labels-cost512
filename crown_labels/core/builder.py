@@ -1,0 +1,188 @@
+import numpy as np
+from scipy.spatial import cKDTree
+from scipy.sparse import triu
+from scipy.sparse.csgraph import dijkstra
+from scipy.ndimage import maximum_filter
+from .algorithm import Config, make_graph
+from .joint_model import JointConfig, gaussian_model
+from .staged_helpers import geometry_seed_config
+context_footprint = np.ones((2,2), bool)
+def stable_seeds(*args):
+    raise RuntimeError('Use the supplied raw-point seed records')
+
+def _append_candidate(model, candidate, cfg):
+    nodes = model['nodes']
+    tree = model['_spatial_tree'] if '_spatial_tree' in model else cKDTree(nodes)
+    center, cov, inverse, logdet = gaussian_model(nodes[candidate['fit']], cfg)
+    radius = min(24., np.sqrt(np.linalg.eigvalsh(cov).max() * cfg.max_mahalanobis2))
+    possible = np.asarray(tree.query_ball_point(center, radius), int)
+    delta = nodes[possible] - center
+    mahal = np.einsum('ni,ij,nj->n', delta, inverse, delta)
+    support_dist = cKDTree(nodes[candidate['fit']]).query(nodes[possible], workers=1)[0]
+    feasible = (mahal <= cfg.max_mahalanobis2) & (support_dist <= cfg.support_extension_m)
+    selected = possible[feasible]
+    record = dict(id=len(model['pool']) + 1, source=candidate['source'],
+                  source_id=int(candidate['source_id']), ff_id=int(candidate.get('ff_id', 0)),
+                  source_members=list(candidate.get('source_members', [])),
+                  center_xyz_m=center.tolist(), center_xy_m=center[:2].tolist(),
+                  covariance=cov.tolist(), logdet=logdet,
+                  core_nodes=len(candidate['core']), fit_nodes=len(candidate['fit']),
+                  feasible_nodes=len(selected), accepted=bool(len(selected)))
+    unary = np.full((len(nodes), 1), np.inf, np.float32)
+    unary[selected, 0] = (.5 * mahal[feasible] + .5 * logdet).astype(np.float32)
+    return candidate, record, unary
+
+def build_geometry_model(points, paired, source_arrays, cfg=JointConfig()):
+    """Build frozen candidates without reading FF3D or old instance IDs."""
+    base = Config()
+    active = points['voxel_height'] > base.vegetation_floor_m
+    all_index = np.flatnonzero(active)
+    nodes = points['voxel_xyz'][active].astype(float)
+    heights = points['voxel_height'][active].astype(float)
+    graph = make_graph(nodes, base.graph_radius_m, base.neighbours)
+    edges = triu(graph, k=1).tocoo()
+    a, b, length = edges.row, edges.col, edges.data
+    weights = cfg.graph_strength * np.exp(-.5 * (length / .45) ** 2)
+    tree = cKDTree(nodes)
+    xy_tree = cKDTree(nodes[:, :2])
+
+    # The frozen baseline takes treetops from the raw observed upper height
+    # raster. The separately interpolated source CHM changes peak topology.
+    chm = np.asarray(paired['raw_upper_height'], np.float32).copy()
+    chm[paired['raw_return_count'] == 0] = np.nan
+    valid = np.asarray(paired['valid']).astype(bool)
+    if chm.shape != valid.shape:
+        raise ValueError(f'CHM/valid shape mismatch: {chm.shape} vs {valid.shape}')
+    rc = np.floor(nodes[:, :2] / base.raster_m).astype(int)[:, ::-1]
+    inside = ((rc >= 0) & (rc < chm.shape)).all(1)
+    rr = np.clip(rc[:, 0], 0, chm.shape[0] - 1)
+    cc = np.clip(rc[:, 1], 0, chm.shape[1] - 1)
+    upper = np.asarray(paired['raw_upper_height'], np.float32)
+    upper = maximum_filter(upper,footprint=context_footprint,mode='nearest')
+    visible = inside & valid[rr, cc] & (heights > base.vegetation_floor_m)
+    visible &= heights >= upper[rr, cc] - base.visible_depth_m
+    visible &= points['local_support'][active] >= 3
+
+    label_cfg = geometry_seed_config(base)
+    peaks, coarse, chm_diagnostic = stable_seeds(chm, valid, label_cfg)
+    pool = []
+    audit = []
+    seed_paths = {}
+    for peak in peaks:
+        center = np.array([peak['col'] + .5, peak['row'] + .5]) * base.raster_m
+        core = np.asarray(xy_tree.query_ball_point(center, base.chm_core_radius_m), int)
+        core = core[visible[core]]
+        q95 = float(np.quantile(heights[core], .95)) if len(core) else 0.
+        if len(core) < base.min_seed_nodes or q95 <= base.target_height_m:
+            audit.append(dict(source='CHM', source_id=peak['id'], action='reject',
+                              reason='insufficient_raw_3d_support'))
+            continue
+        # CHM visibility is a treetop-support check, not a crown sampling
+        # mask.  Fitting only the upper visible returns shrinks the Gaussian
+        # to the crown top and drops the lower crown edge.  The frozen
+        # Gaussian baseline fits all available vegetation voxels around the
+        # treetop; retain that behavior here while keeping local support as
+        # the observation gate.
+        fit = np.asarray(xy_tree.query_ball_point(center, cfg.fit_radius_m), int)
+        fit = fit[(heights[fit] > base.vegetation_floor_m) &
+                  (points['local_support'][active][fit] >= 3)]
+        # Reject geometrically unrelated vegetation from this Gaussian fit.
+        distance = np.asarray(dijkstra(graph, directed=False, indices=core,
+                              min_only=True, limit=cfg.support_extension_m), float)
+        reachable = np.flatnonzero(np.isfinite(distance))
+        seed_paths[int(peak['id'])] = (reachable, distance[reachable])
+        fit_before_connectivity = len(fit)
+        fit = fit[np.isfinite(distance[fit])]
+        audit.append(dict(source='Gaussian_fit', source_id=int(peak['id']),
+                          action='restrict_to_existing_3d_support',
+                          before_nodes=fit_before_connectivity, after_nodes=len(fit)))
+        if len(fit) < base.min_seed_nodes:
+            continue
+        pool.append(dict(source='local_CHM', source_id=int(peak['id']), ff_id=0,
+                         center=center, core=core, fit=fit, source_members=[int(peak['id'])]))
+        audit.append(dict(source='CHM', source_id=peak['id'], action='add',
+                          reason='raw_xyz_height_supported'))
+
+    # A limited union hypothesis lets a broad crown compete with nearby peaks.
+    proposals = []
+    for i, left in enumerate(pool):
+        ls = seed_paths[int(left['source_id'])][0]
+        for right in pool[i+1:]:
+            separation = np.linalg.norm(left['center'] - right['center'])
+            if separation > 2 * cfg.support_extension_m:
+                continue
+            rs = seed_paths[int(right['source_id'])][0]
+            shared = np.intersect1d(ls, rs, assume_unique=True)
+            if len(shared) < base.min_seed_nodes:
+                continue
+            overlap = len(shared) / min(len(ls), len(rs))
+            proposals.append((-overlap, separation, left, right))
+    for index, (overlap, separation, left, right) in enumerate(sorted(proposals,key=lambda x:(x[0],x[1]))[:cfg.max_joint_candidates]):
+        pool.append(dict(source='joint_CHM', source_id=100000+index, ff_id=0,
+                         center=(left['center']+right['center'])/2,
+                         core=np.unique(np.r_[left['core'],right['core']]),
+                         fit=np.unique(np.r_[left['fit'],right['fit']]),
+                         source_members=[left['source_id'],right['source_id']]))
+        audit.append(dict(source='joint_proposal', separation_m=float(separation),
+                          observed_support_overlap=float(-overlap),
+                          members=[left['source_id'],right['source_id']]))
+
+    unary = np.full((len(nodes), len(pool) + 1), np.inf, np.float32)
+    unary[:, 0] = cfg.background_cost
+    records = []
+    for identity, candidate in enumerate(pool, 1):
+        _, record, column = _append_candidate(dict(nodes=nodes, pool=pool[:identity - 1], _spatial_tree=tree), candidate, cfg)
+        record['id'] = identity
+        unary[:, identity] = column[:, 0]
+        records.append(record)
+    # The Gaussian is a spatial prior, not a hard crown boundary.  Recover a
+    # finite, physically supported fringe from each CHM core on the raw-LiDAR
+    # graph.  This mirrors the fixed Gaussian baseline's bounded propagation:
+    # a node may be acquired only through a short observed 3-D path, so two
+    # adjacent trees still compete at their boundary instead of being joined
+    # by a 2-D dilation.
+    support_recovered = np.zeros(len(nodes), np.int32)
+    if pool:
+        graph_length = graph.copy().tocsr()
+        for identity, candidate in enumerate(pool, 1):
+            core = np.unique(np.asarray(candidate['core'], int))
+            core = core[(core >= 0) & (core < len(nodes))]
+            if not len(core):
+                continue
+            # Union-core distances equal the minimum of member-source distances.
+            distance = np.full(len(nodes), np.inf)
+            for member in candidate['source_members']:
+                indices, values = seed_paths[int(member)]
+                distance[indices] = np.minimum(distance[indices], values)
+            reachable = np.isfinite(distance)
+            # The fitted Gaussian cannot acquire a separate canopy/crop surface.
+            unsupported = ~reachable & np.isfinite(unary[:, identity])
+            audit.append(dict(source='Gaussian_support', source_id=identity,
+                              action='same_existing_5m_seed_path', removed_nodes=int(unsupported.sum())))
+            unary[unsupported, identity] = np.inf
+            missing = reachable & ~np.isfinite(unary[:, identity])
+            if np.any(missing):
+                # Keep the extension more expensive than an in-model Gaussian
+                # fit, but cheaper than abstaining.  Later column normalization
+                # makes this a relative cost shared by all candidates.
+                unary[missing, identity] = (1.0 + 0.15 * distance[missing]).astype(np.float32)
+                support_recovered[missing] += 1
+        best = np.min(unary[:, 1:], axis=1)
+        observed = np.isfinite(best)
+        # Keep abstention available: Gaussian feasibility alone is not proof
+        # of a crown.  The best feasible geometric cost is already zero, so
+        # disabling the background state is neither needed for coverage nor justified.
+        offset = np.where(observed, best, 0.).astype(np.float32)
+        for k in range(1, unary.shape[1]):
+            ok = observed & np.isfinite(unary[:, k])
+            unary[ok, k] = np.clip((unary[ok, k] - best[ok]) / cfg.gaussian_cost_scale, 0, 1)
+    costs = np.full(len(pool) + 1, cfg.label_cost_voxels, float)
+    costs[0] = 0.
+    return dict(nodes=nodes, heights=heights, active=active, active_indices=all_index,
+                graph=graph, unary=unary, edge_i=a, edge_j=b, weights=weights,
+                costs=costs, pool=pool, candidates=records, base=base,
+                chm_coarse=coarse, candidate_audit=audit,
+                chm_diagnostic=chm_diagnostic,
+                gaussian_offset=offset if pool else np.zeros(len(nodes), np.float32),
+                foreground_support=np.isfinite(unary[:, 1:]).any(axis=1),
+                support_recovered_nodes=support_recovered)
