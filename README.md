@@ -6,7 +6,7 @@
 
 ## 给老师讲流程
 
-先读[Python式流程伪代码](docs/ALGORITHM.md)，或直接打开[带注释的教学代码](examples/algorithm_walkthrough.py)：展开了三维建图、高斯拟合、联合候选和图割优化。代码入口[`worker.py::run()`](crown_labels/worker.py)也按六步重新排开。
+流程见[算法伪代码](docs/ALGORITHM.md)，对应的Python形式见[algorithm_walkthrough.py](examples/algorithm_walkthrough.py)。代码入口[`worker.py::run()`](crown_labels/worker.py)也按六步重新排开。
 
 ## 方法
 
