@@ -51,5 +51,12 @@ class DatasetContract(unittest.TestCase):
    self.assertEqual(a['rgb'][30,30].tolist(),[120,120,120])
    self.assertEqual(set(a['object_ids']),{1,2})
 
+class PublicContextContract(unittest.TestCase):
+ def test_production_context_is_explicit_in_fresh_process(self):
+  import os,sys,subprocess
+  env=os.environ.copy();env.pop('GRID01_CONTEXT',None)
+  result=subprocess.run([sys.executable,'-B','-c',"import os;import crown_labels.science;assert os.environ['GRID01_CONTEXT']=='box2'"],env=env,capture_output=True,text=True,timeout=30)
+  self.assertEqual(result.returncode,0,result.stderr)
+
 if __name__=='__main__':unittest.main()
 

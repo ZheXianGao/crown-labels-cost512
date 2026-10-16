@@ -13,6 +13,8 @@ from .core.proposals import get_groups
 from .core.admission import admit_peaks as _admit_peaks
 from .core.peaks import detect
 from . import policy as reviewed
+# Production recipe: the local-background surface uses the same fixed 2x2 context.
+os.environ['GRID01_CONTEXT']='box2'
 P=Path(os.environ.get('CROWN_RUN_ROOT','.')).resolve()
 v=SimpleNamespace(alg=alg,sm=builder,jm=jm,method=unary,moves=family_solver,
  make_cache=conditional_cache.make,repair=gap_repair.repair,

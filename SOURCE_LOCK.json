@@ -2,8 +2,10 @@
   ".github/workflows/tests.yml": "5a79db520670a22bea3099874de5a81d5774f36ec93747688b904dd1f3ab0168",
   ".gitignore": "ec4390db4e747ed9404a162ebd9f6261c1e9e5278295befde340f9a3b4d3d8f1",
   "ACCEPTANCE.json": "fba2e04aa0857f87c8822a7b3cb766a7b586899b5fd693507d49b56757ec7ffb",
-  "README.md": "44fa11989522c6fdfca1b0160376391d2442f096c35be25a671f6977a17310d2",
-  "SOURCE_MANIFEST.json": "41dadbdbb8ff7b1b2838192e458c0e4e80f576c9490bff3bc13655dbb59e7ccd",
+  "CHANGELOG.md": "4442d460f2e336f97e211827e4780c05c5df3111dd80c45da989096a59b1d81b",
+  "ORCHESTRATION_ACCEPTANCE.json": "4b1417cb9930261541a1ac7f7d4a4389cdf32d9bc8e177b0bc76228fa655980a",
+  "README.md": "60e0e7343f3348c71f4999f6e06b8598c28d064c27849bd79d643208d53f5f03",
+  "SOURCE_MANIFEST.json": "365df143aa687664ff5aeb5ef63d0228369e4e24f3cf2d1bc01337f0821a28ec",
   "crown_labels/__init__.py": "c003d9cd1893caf1fbf5506e0ca4d0ffe15e84a7b82fd9582201c3f52cbdf7be",
   "crown_labels/__main__.py": "d3114135dd36af721d5c6fec9a41f8738fd3e74d7ce0b2e39a60f9e025793135",
   "crown_labels/core/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -32,10 +34,11 @@
   "crown_labels/extract.py": "dff9206f2c4f5f7ebb997b8a0c2ce04cbfab3240ffddb5d2f072ec726450b86f",
   "crown_labels/policy.py": "96c6de4166630a13fb2bddbdab1125cc77de83c642c00dbaec36af07e7a5cd5f",
   "crown_labels/prepare.py": "01e0198e9e5d028ae3a53fd1eacfabd08d6470f3fb8b67b950b34b4f20b25622",
-  "crown_labels/science.py": "b6b743c8afa030642e5a923c6f1cffed17882fac51cd05bbdf345a293cbc2c0e",
+  "crown_labels/science.py": "1212a2ff9a5b4a7552a12018e85309d86222b1043be87f60368519dcfda36694",
   "crown_labels/surface.py": "fd74272e48fb439400e3ceb1882ebbbbd7412d15e09c566abb312bd6884af0df",
-  "crown_labels/worker.py": "6a2a8ab325e7cff59c700ff5c4445d76b746763daa4db2c9ae1597abca790767",
+  "crown_labels/worker.py": "cd6e44e22141697fa5f46f38c12ef8cb1999a38bfc93b09f7be61665ffd8d1ff",
+  "docs/ALGORITHM.md": "534387ba0aecafae6a3f24953c5db7a08de74b804aeec08308389ba6cb45b183",
   "examples/plan.example.json": "93afc22fe88ef6f8f589da6d4b1388881fd0b7ff443d38f78f43f473afbf94fa",
   "pyproject.toml": "cb7ff762027cb74895e51535e4f64ca9e2f549136ae33dd4e69bde1b14417e0b",
-  "tests/test_dense.py": "0c08719e96d3bc88adc9e8fc5329b9fd45202554fb35e47d053683831edd601b"
+  "tests/test_dense.py": "011a611722ba8f14d63babcb15853fc76e9fd09b5dd6ec7837bf24a4ea23d991"
 }

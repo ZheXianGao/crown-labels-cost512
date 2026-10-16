@@ -172,7 +172,8 @@
     "Only runtime functions retained; experimental runners removed",
     "Project-local imports made relative",
     "Solver label zero called background; numerical cost unchanged",
-    "Dense supervision only; no legacy uncertainty exporter"
+    "Dense supervision only; no legacy uncertainty exporter",
+    "Bind GRID01_CONTEXT=box2 explicitly, as in the original production adapter; no new scientific setting."
   ],
   "public_defaults_bound_to_actual_production_call": {
     "voxel_m": 0.1,
